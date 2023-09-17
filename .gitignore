@@ -1,0 +1,5 @@
+.vercel
+.env
+go.sum
+.idea
+.vscode

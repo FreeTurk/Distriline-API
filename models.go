@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"gorm.io/gorm"
+	gorm "gorm.io/gorm"
 )
 
 type User struct {
@@ -12,22 +12,19 @@ type User struct {
 	Name      string
 	Email     string `gorm:"uniqueIndex"`
 	Password  string `gorm:"<-"`
+	AuthUuid  string
 	PhoneArea int
 	Phone     int
 	Orders    []Order
+	Checksum  [32]byte
 }
 
 type Employee struct {
 	gorm.Model
+	User              User `gorm:"embedded"`
 	WorkingHoursStart time.Time
 	WorkingHoursEnd   time.Time
 	BusinessID        int
-	Business          Business
-	Name              string
-	Email             string `gorm:"uniqueIndex"`
-	Password          string `gorm:"<-"`
-	PhoneArea         int
-	Phone             int
 }
 
 type Business struct {
@@ -38,13 +35,13 @@ type Business struct {
 	Email       string `gorm:"uniqueIndex"`
 	PhoneArea   int
 	Phone       int
+	Products    []Product
 	Orders      []Order
 }
 
 type Order struct {
 	gorm.Model
 	BusinessID   uint
-	Business     Business
 	UserID       uint
 	User         User
 	Products     []OrderProduct
@@ -54,18 +51,18 @@ type Order struct {
 
 type OrderProduct struct {
 	gorm.Model
-	Product   Product
-	ProductID int
-	Order     Order
-	OrderID   int
 	Quantity  int
+	ProductID int
+	OrderID   int
 }
 
 type Product struct {
 	gorm.Model
 	Name        string
+	BusinessID  int
 	Description string
 	Price       float64
 	Currency    string
-	Quantity    int
+	Unit        string
+	Interval    int
 }

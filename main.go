@@ -2,8 +2,10 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -15,7 +17,17 @@ var (
 )
 
 func main() {
-	db.AutoMigrate(&User{}, &Order{}, &Product{}, &Business{}, &Employee{})
+
+	// Load .env file
+	err := godotenv.Load()
+
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	// All the models are defined in models.go
+	// Given here to push to the database
+	db.AutoMigrate(&User{}, &Order{}, &Product{}, &Business{}, &Employee{}, &OrderProduct{})
 
 	fmt.Println("done.")
 
