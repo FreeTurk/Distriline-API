@@ -1,4 +1,4 @@
-package main
+package models
 
 import (
 	"database/sql"
@@ -16,7 +16,7 @@ type User struct {
 	PhoneArea int
 	Phone     int
 	Orders    []Order
-	Checksum  [32]byte
+	Checksum  string
 }
 
 type Employee struct {

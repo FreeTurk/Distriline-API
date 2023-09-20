@@ -1,6 +1,8 @@
-package main
+package account
 
 import (
+	"distriline/db"
+	"distriline/models"
 	"fmt"
 
 	"github.com/gin-gonic/gin"
@@ -24,8 +26,8 @@ func GetPassHash(c *gin.Context) {
 		return
 	}
 
-	userdb := db.First(&User{}, User{Email: body.Email})
-	employeedb := db.First(&Employee{}, Employee{User: User{Email: body.Email}})
+	userdb := db.Db.First(&models.User{}, models.User{Email: body.Email})
+	employeedb := db.Db.First(&models.Employee{}, models.Employee{User: models.User{Email: body.Email}})
 
 	var options []*gorm.DB = []*gorm.DB{userdb, employeedb}
 
@@ -41,17 +43,17 @@ func GetPassHash(c *gin.Context) {
 	for _, option := range options {
 		if option.Error == nil {
 			// update auth uuid
-			userdb.Update("AuthUuid", uuid.New().String())
+			option.Update("AuthUuid", uuid.New().String())
 
 			// get user
-			userdb.Take(&result)
+			option.Take(&result)
 
 			// refresh checksums
 			_, checksum := CheckUserIntegrity(result)
-			userdb.Update("Checksum", checksum)
+			option.Update("Checksum", fmt.Sprintf("%x", checksum))
 
 			// reget user
-			userdb.Take(&result)
+			option.Take(&result)
 
 			var usertype string
 

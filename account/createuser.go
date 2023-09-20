@@ -1,6 +1,11 @@
-package main
+package account
 
-import "github.com/gin-gonic/gin"
+import (
+	"distriline/db"
+	"distriline/models"
+
+	"github.com/gin-gonic/gin"
+)
 
 func CreateUser(c *gin.Context) {
 	type ExpectedReq struct {
@@ -22,10 +27,10 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	userdb := db.First(&User{}, User{Email: body.Email})
-	employeedb := db.First(&Employee{}, Employee{User: User{Email: body.Email}})
+	userdb := db.Db.First(&models.User{}, models.User{Email: body.Email})
+	employeedb := db.Db.First(&models.Employee{}, models.Employee{User: models.User{Email: body.Email}})
 
-	employeedbByBusiness := db.First(&Employee{}, Employee{BusinessID: body.BusinessID})
+	employeedbByBusiness := db.Db.First(&models.Employee{}, models.Employee{BusinessID: body.BusinessID})
 
 	// Check if user already exists, return 400 if it does
 	if body.BusinessID == 0 {
@@ -42,23 +47,24 @@ func CreateUser(c *gin.Context) {
 
 	if body.BusinessID != 0 {
 		if employeedbByBusiness.Error != nil {
-			var employ Employee = Employee{
-				User: User{
+			var employ models.Employee = models.Employee{
+				User: models.User{
 					Name:     body.Name,
 					Email:    body.Email,
 					Password: body.Password,
 				},
 				BusinessID: body.BusinessID,
 			}
-			db.Create(&employ)
+			db.Db.Create(&employ)
+
 		}
 	} else {
-		var user User = User{
+		var user models.User = models.User{
 			Name:     body.Name,
 			Email:    body.Email,
 			Password: body.Password,
 		}
-		db.Create(&user)
+		db.Db.Create(&user)
 	}
 	c.Status(200)
 }

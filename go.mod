@@ -1,4 +1,4 @@
-module main
+module distriline
 
 go 1.20
 

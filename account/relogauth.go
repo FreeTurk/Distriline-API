@@ -1,6 +1,10 @@
-package main
+package account
 
 import (
+	"distriline/db"
+	"distriline/models"
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -8,7 +12,7 @@ import (
 
 func AuthRelogin(c *gin.Context) {
 	type ExpectedReq struct {
-		AuthUuid string `json:"auth-uuid"`
+		AuthUuid string `json:"auth_uuid"`
 		Email    string `json:"email"`
 	}
 
@@ -25,8 +29,8 @@ func AuthRelogin(c *gin.Context) {
 
 	result := map[string]interface{}{}
 
-	userdb := db.Where("Email = ?", body.Email).First(&User{})
-	employeedb := db.Where("Email = ?", body.Email).First(&Employee{})
+	userdb := db.Db.Where("Email = ?", body.Email).First(&models.User{})
+	employeedb := db.Db.Where("Email = ?", body.Email).First(&models.Employee{})
 
 	var options []*gorm.DB = []*gorm.DB{userdb, employeedb}
 
@@ -50,15 +54,24 @@ func AuthRelogin(c *gin.Context) {
 				c.JSON(400, gin.H{
 					"result": false,
 				})
+				fmt.Println("checksum not valid")
 				return
 			}
 
 			// if valid, refresh the key and return the user
 			option.Update("AuthUuid", uuid.New().String())
 			option.Take(&result)
+
+			var usertype string
+			if option == userdb {
+				usertype = "user"
+			} else {
+				usertype = "employee"
+			}
+
 			c.JSON(200, gin.H{
 				"result": result,
-				"type":   "user",
+				"type":   usertype,
 			})
 			return
 		}
