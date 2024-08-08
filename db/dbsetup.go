@@ -13,7 +13,7 @@ import (
 
 var (
 	Res     = gin.Default()
-	dsn     = "host=localhost user=emiroven password=1903bjksk dbname=distriline port=5432 sslmode=disable TimeZone=Europe/Istanbul"
+	dsn     = "host=localhost user=emiroven password= dbname=distriline port=5432 sslmode=disable TimeZone=Europe/Istanbul"
 	Db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 )
 
